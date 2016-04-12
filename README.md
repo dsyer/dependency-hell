@@ -135,7 +135,7 @@ same options for workarounds and fixes.
 
 ## Workarounds and Fixes
 
-*1* Explicitly manage the Reactor dependency in the app:
+**Option 1:** Explicitly manage the Reactor dependency in the app:
 
 ```
 	<dependencyManagement>
@@ -168,7 +168,7 @@ $ ../mvn dependency:tree
 > to explicitly list the same dependencies in the `<dependencies>`
 > section of the POM.
 
-*2* Explicitly manage only the Reactor version in the app via a
+**Option 2:** Explicitly manage only the Reactor version in the app via a
  property:
 
 ```
@@ -195,7 +195,7 @@ $ ../mvnw dependency:tree
 ...
 ```
 
-*3* Use a BOM with the new Reactor version and Maven 3.4.
+**Option 3:** Use a BOM with the new Reactor version and Maven 3.4.
 
 I.e. in the app:
 
@@ -235,7 +235,7 @@ $ ./mvnw dependency:tree # N.B. Maven 3.4
 > work at the time of writing. You might have to edit the version
 > label to get it to work with the latest snapshot.
 
-*4* Use Gradle (instead of Maven) and a BOM with the new Reactor
+**Option 4:** Use Gradle (instead of Maven) and a BOM with the new Reactor
  version. There is no parent, since that is a Maven thing, and
  dependency management with the available BOMs can be applied using
  the `spring.io` plugin.
@@ -251,7 +251,7 @@ compile - Dependencies for source set 'main'.
 ...
 ```
 
-*5* Don't use that parent, and adopt the `*-dependencies` model that
+**Option 5:** Don't use that parent, and adopt the `*-dependencies` model that
  Spring Cloud uses. If the parent has some plugin and property
  declarations that you want to re-use, copy those into a new parent,
  and use that as your application parent POM. The dependency
