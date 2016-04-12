@@ -260,6 +260,10 @@ compile - Dependencies for source set 'main'.
  if it is declared first it will take precedence over other BOMs for
  anything it declares explicitly.
 
+The `simple-parent` and the `bom` in the sample code are an example of
+splitting the parent up in this way. Then `app-5` uses the
+`simple-parent` as a parent and the `bom` as a BOM.
+
 ```
 $ cd app-5
 $ ../mvnw dependency:tree
