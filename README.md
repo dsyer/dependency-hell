@@ -235,14 +235,14 @@ $ ./mvnw dependency:tree # N.B. Maven 3.4
 > work at the time of writing. You might have to edit the version
 > label to get it to work with the latest snapshot.
 
-*4* Use gradle (instead of Maven) and a BOM with the new Reactor
+*4* Use Gradle (instead of Maven) and a BOM with the new Reactor
  version. There is no parent, since that is a Maven thing, and
  dependency management with the available BOMs can be applied using
  the `spring.io` plugin.
 
 ```
 $ cd app-4
-$ gradle dependencies
+$ ./gradlew dependencies
 ...
 compile - Dependencies for source set 'main'.
 \--- com.example:example-library:0.0.1-SNAPSHOT
