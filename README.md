@@ -1,13 +1,39 @@
-This project explains some of the dependency management tricks that
+This article explains some of the dependency management tricks that
 can be used to create libraries and apps that depend on newer versions
 of a transitive dependency. The examples below uses
-[reactor](https://projectreactor.io) as an example of such a
+[Reactor](https://projectreactor.io) as an example of such a
 dependency because it is nearing a major new release (2.5.0) but
 existing dependency management platforms (like Spring Boot 1.3)
 declare a dependency on older versions (2.0.7). If you wanted to write
-an app that depended on a new version of reactor through a transitive
+an app that depended on a new version of Reactor through a transitive
 dependency on a library, this is the situation you would be faced
 with.
+
+It is a reasonable thing to want to do this, but it should be done
+with extreme caution, because newer versions of transitive
+dependencies can easily break features that rely on the older version
+in Spring Boot. When you do this, and apply one of the fixes below,
+you are divorcing yourself from the dependency management of Spring
+Boot and saying "hey, I know what I am doing, trust me."
+Unfortunately, sometimes you need to do this in order to take
+advantage of new features in third party libraries. If you don't need
+the new version of Reactor (or whatever other external transitive
+dependency you need), then don't do this, just stick to the happy path
+and let Spring Boot manage the dependencies.
+
+The Spring Boot parallel to the toy BOMs and parent POMs in this
+project would be a library that explicitly changed the version of
+something that is listed in`spring-boot-dependencies`. Other
+Boot-based projects, e.g. various parts of Spring Cloud, define their
+own `*-dependencies` BOM that you can use to manage external
+dependencies, and for the most part these do not require new versions
+of transitive dependencies that clash with the Spring Boot ones. If
+they did, this is how they would have to declare them, and this is how
+you could opt in to their version of dependency management. The
+example that prompted this article was
+[`spring-cloud-cloudfonudry-deployer`](https://github.com/spring-cloud/spring-cloud-cloudfoundry-deployer)
+which needs Reactor 2.5 through a transitive dependency on the new
+[Cloud Foundry Java client](https://github.com/cloudfoundry/cf-java-client).
 
 > NOTE: All the code examples below are in the
 > [github repository](https:github.com/dsyer/dependency-hell). You
@@ -19,7 +45,7 @@ with.
 
 ## The Problem
 
-We have a parent pom that has dependency management for reactor
+We have a parent pom that has dependency management for Reactor
 (2.0.7). It does this via a Maven property, i.e. in the parent pom:
 
 ```xml
@@ -38,7 +64,7 @@ We have a parent pom that has dependency management for reactor
 ```
 
 Then we have a library with this parent that wants to use a newer
-version of reactor, so it does this:
+version of Reactor, so it does this:
 
 ```
 	<properties>
@@ -72,7 +98,7 @@ and the actual dependency:tree from Maven (3.3):
 Then a user wants to write an app that depends on the library and
 would like to re-use the parent, let's say for other features that we
 haven't included in the simple sample. He does that and finds that
-(boo, hoo), the reactor version is messed up. The relationships for
+(boo, hoo), the Reactor version is messed up. The relationships for
 the app can be summarised like this:
 
 ```
@@ -91,21 +117,21 @@ and the Maven (3.3) dependency report looks like this:
 [INFO]       \- org.slf4j:slf4j-api:jar:1.7.12:compile
 ```
 
-(i.e. it has the wrong version of reactor). This is because the parent
-has dependency management for reactor, and there is no explicit
-dependency or dependency management of reactor in the app itself. The
+(i.e. it has the wrong version of Reactor). This is because the parent
+has dependency management for Reactor, and there is no explicit
+dependency or dependency management of Reactor in the app itself. The
 parent always wins in this case and it doesn't help to add a BOM
-(using Maven 3.3 at least) with the right reactor version - only an
-explicit version of reactor itself will fix it.
+(using Maven 3.3 at least) with the right Reactor version - only an
+explicit version of Reactor itself will fix it.
 
 This is the same structure (with fewer levels) as a user app generated
 from [initializr](https://start.spring.io), with a dependency on a
-libary that uses reactor 2.5.0. It has all the same problems, and the
+libary that uses Reactor 2.5.0. It has all the same problems, and the
 same options for workarounds and fixes.
 
 ## Workarounds and Fixes
 
-*1* Explicitly manage the reactor dependency in the app:
+*1* Explicitly manage the Reactor dependency in the app:
 
 ```
 	<dependencyManagement>
@@ -138,7 +164,7 @@ $ ../mvn dependency:tree
 > to explicitly list the same dependencies in the `<dependencies>`
 > section of the POM.
 
-*2* Explicitly manage only the reactor version in the app via a
+*2* Explicitly manage only the Reactor version in the app via a
  property:
 
 ```
@@ -165,7 +191,7 @@ $ ../mvnw dependency:tree
 ...
 ```
 
-*3* Use a BOM with the new reactor version and Maven 3.4.
+*3* Use a BOM with the new Reactor version and Maven 3.4.
 
 I.e. in the app:
 
@@ -182,11 +208,6 @@ I.e. in the app:
 		</dependencies>
 	</dependencyManagement>
 ```
-
-> NOTE: the Spring Boot parallel BOM to this one is
-> `spring-boot-dependencies`. Other Boot-based projects, e.g. various
-> parts of Spring Cloud, define their own `*-dependencies` BOM that
-> you can use in the same way.
 
 Maven 3.4 is not released yet, but you can get it from
 [the repo]https://repository.apache.org/content/repositories/snapshots/org/apache/maven/apache-maven/3.4.0-SNAPSHOT/)
@@ -210,7 +231,7 @@ $ ./mvnw dependency:tree # N.B. Maven 3.4
 > work at the time of writing. You might have to edit the version
 > label to get it to work with the latest snapshot.
 
-*4* Use gradle (instead of Maven) and a BOM with the new reactor
+*4* Use gradle (instead of Maven) and a BOM with the new Reactor
  version. There is no parent, since that is a Maven thing, and
  dependency management with the available BOMs can be applied using
  the `spring.io` plugin.
